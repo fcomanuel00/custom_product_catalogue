@@ -1,0 +1,130 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!--
+        Hoja de estilos compartida por los 4 diseños.
+        Se incrusta en el PDF con wkhtmltopdf, así que nada de CSS moderno:
+        usar propiedades clásicas y colores simples.
+    -->
+    <template id="report_catalogue_styles">
+        <style>
+            .o_product_catalogue { font-family: sans-serif; color: #222; }
+
+            .o_catalogue_header h2 { margin: 0 0 6px 0; }
+            .o_catalogue_footer { border-top: 1px solid #ddd; padding-top: 8px; font-size: 11px; color: #555; }
+
+            /* Tabla común (estilo 1) */
+            .o_cat_table { width: 100%; border-collapse: collapse; font-size: 11px; }
+            .o_cat_table th {
+                background: #f2f2f2;
+                border-bottom: 2px solid #888;
+                padding: 6px;
+                text-align: left;
+            }
+            .o_cat_table td {
+                border-bottom: 1px solid #eee;
+                padding: 6px;
+                vertical-align: top;
+            }
+            .o_cat_table img { object-fit: contain; }
+
+            /* Ficha completa (estilo 2) */
+            .o_cat_card {
+                border: 1px solid #ccc;
+                border-radius: 6px;
+                padding: 12px;
+                margin-bottom: 16px;
+                page-break-inside: avoid;
+            }
+            .o_cat_card .o_cat_card_header {
+                display: flex;
+                justify-content: space-between;
+                align-items: baseline;
+                border-bottom: 1px solid #eee;
+                padding-bottom: 4px;
+                margin-bottom: 8px;
+            }
+            .o_cat_card .o_cat_card_title { font-size: 14px; font-weight: bold; }
+            .o_cat_card .o_cat_card_price { font-size: 14px; font-weight: bold; color: #1a5490; }
+            .o_cat_card .o_cat_card_body { display: flex; gap: 12px; }
+            .o_cat_card .o_cat_card_image { flex: 0 0 auto; }
+            .o_cat_card .o_cat_card_desc { flex: 1; font-size: 11px; color: #444; }
+
+            /* Rejilla/cuadrícula (estilos 3 y 4) */
+            .o_cat_grid { width: 100%; border-collapse: separate; border-spacing: 8px; }
+            .o_cat_grid td {
+                border: 1px solid #ddd;
+                border-radius: 4px;
+                padding: 8px;
+                vertical-align: top;
+                page-break-inside: avoid;
+            }
+            .o_cat_grid .o_cat_grid_img {
+                text-align: center;
+                margin-bottom: 6px;
+            }
+            .o_cat_grid .o_cat_grid_title {
+                font-weight: bold;
+                font-size: 12px;
+                margin-bottom: 3px;
+            }
+            .o_cat_grid .o_cat_grid_ref { font-size: 10px; color: #888; }
+            .o_cat_grid .o_cat_grid_price {
+                font-weight: bold;
+                color: #1a5490;
+                font-size: 12px;
+                margin-top: 4px;
+            }
+            .o_cat_grid .o_cat_grid_desc { font-size: 10px; color: #555; margin-top: 4px; }
+
+            .o_cat_category_title {
+                background: #eee;
+                padding: 6px 10px;
+                margin: 12px 0 6px 0;
+                font-weight: bold;
+                border-left: 4px solid #1a5490;
+            }
+
+            /* Filas de variantes (estilo 1) */
+            .o_cat_parent_row td {
+                background: #fafafa;
+                border-top: 2px solid #ccc !important;
+            }
+            .o_cat_variant_row td {
+                background: #fff;
+                border-top: 1px dotted #eee !important;
+            }
+
+            /* Mini-tabla de variantes dentro de ficha (estilo 2) */
+            .o_cat_variants_table {
+                width: 100%;
+                border-collapse: collapse;
+                margin-top: 10px;
+                font-size: 10px;
+                border-top: 1px dashed #ccc;
+            }
+            .o_cat_variants_table th {
+                background: #f7f7f7;
+                border-bottom: 1px solid #ddd;
+                padding: 4px 6px;
+                text-align: left;
+                font-weight: normal;
+                color: #666;
+            }
+            .o_cat_variants_table td {
+                padding: 4px 6px;
+                border-bottom: 1px dotted #eee;
+            }
+
+            /* Listado mini de variantes en rejilla (estilos 3 y 4) */
+            .o_cat_variants_mini {
+                border-top: 1px dashed #ddd;
+                padding-top: 4px;
+                margin-top: 6px;
+            }
+            .o_cat_variant_line {
+                margin-bottom: 3px;
+                line-height: 1.4;
+            }
+        </style>
+    </template>
+</odoo>

@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!--
+        ESTILO 2 — Ficha completa por producto.
+        Imagen grande del producto padre a la izquierda, datos a la derecha.
+        Si tiene variantes, debajo de la ficha se añade una mini-tabla con
+        cada variante y sus atributos.
+    -->
+    <template id="report_style_2">
+        <t t-foreach="doc._get_sorted_products()" t-as="product">
+            <div class="o_cat_card">
+                <div class="o_cat_card_header">
+                    <div class="o_cat_card_title">
+                        <span t-if="doc.show_reference and product.default_code"
+                              class="text-muted"
+                              style="font-size: 11px;">
+                            [<t t-out="product.default_code"/>]
+                        </span>
+                        <span t-out="product.name"/>
+                    </div>
+                    <div t-if="doc.show_price and not doc._has_real_variants(product)" class="o_cat_card_price">
+                        <span t-out="doc.get_product_price(product)"
+                              t-options="{'widget': 'monetary', 'display_currency': doc.currency_id}"/>
+                        <span t-if="doc.show_uom" style="font-size: 11px; color: #888;">
+                            / <t t-out="product.uom_id.name"/>
+                        </span>
+                    </div>
+                </div>
+                <div class="o_cat_card_body">
+                    <div class="o_cat_card_image">
+                        <t t-set="big_img" t-value="doc._get_image_size_px() * 2"/>
+                        <img t-if="product.image_256"
+                             t-att-src="image_data_uri(product.image_256)"
+                             t-attf-style="max-height: {{big_img}}px; max-width: {{big_img}}px;"/>
+                    </div>
+                    <div class="o_cat_card_desc">
+                        <div t-if="doc.show_category" class="text-muted mb-2" style="font-size: 10px;">
+                            <strong>Categoría:</strong> <t t-out="product.categ_id.complete_name"/>
+                        </div>
+                        <div t-if="doc.show_description">
+                            <t t-out="product.description_sale or product.description or ''"/>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ──── Mini-tabla de variantes (si hay más de 1) ──── -->
+                <t t-if="doc._has_real_variants(product)">
+                    <table class="o_cat_variants_table">
+                        <thead>
+                            <tr>
+                                <th style="width: 48px;"></th>
+                                <th t-if="doc.show_reference" style="width: 80px;">Ref.</th>
+                                <th>Variante</th>
+                                <th t-if="doc.show_price" style="width: 90px; text-align: right;">Precio</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <t t-foreach="doc._get_variants(product)" t-as="variant">
+                                <tr>
+                                    <td>
+                                        <img t-if="variant.image_128"
+                                             t-att-src="image_data_uri(variant.image_128)"
+                                             style="max-height: 40px; max-width: 40px;"/>
+                                    </td>
+                                    <td t-if="doc.show_reference">
+                                        <span t-out="variant.default_code or '-'"/>
+                                    </td>
+                                    <td>
+                                        <span t-out="doc._get_variant_attrs_text(variant)"/>
+                                    </td>
+                                    <td t-if="doc.show_price" style="text-align: right;">
+                                        <span t-out="doc.get_variant_price(variant)"
+                                              t-options="{'widget': 'monetary', 'display_currency': doc.currency_id}"/>
+                                    </td>
+                                </tr>
+                            </t>
+                        </tbody>
+                    </table>
+                </t>
+            </div>
+        </t>
+    </template>
+</odoo>

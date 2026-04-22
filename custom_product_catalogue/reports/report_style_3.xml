@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!--
+        ESTILO 3 — Rejilla de 3 columnas agrupada por categoría.
+        NOTA: usamos t-attf-style con interpolación {{ }} en lugar del
+        operador % de Python, porque el % dentro de atributos QWeb es
+        ambiguo y rompe cuando el valor de estilo contiene porcentajes
+        (p. ej. "max-width: 100%").
+    -->
+    <template id="report_style_3">
+        <t t-set="products_sorted" t-value="doc._get_sorted_products()"/>
+        <t t-set="categ_ids" t-value="[]"/>
+        <t t-foreach="products_sorted" t-as="p">
+            <t t-if="p.categ_id.id not in categ_ids">
+                <t t-set="categ_ids" t-value="categ_ids + [p.categ_id.id]"/>
+            </t>
+        </t>
+
+        <t t-set="img_h" t-value="int(doc._get_image_size_px() * 1.5)"/>
+
+        <t t-foreach="categ_ids" t-as="cid">
+            <t t-set="categ" t-value="products_sorted.filtered(lambda x: x.categ_id.id == cid)[:1].categ_id"/>
+            <t t-set="group" t-value="products_sorted.filtered(lambda x: x.categ_id.id == cid)"/>
+
+            <div class="o_cat_category_title" t-out="categ.complete_name"/>
+
+            <table class="o_cat_grid">
+                <t t-foreach="range(0, len(group), 3)" t-as="i">
+                    <tr>
+                        <t t-foreach="range(3)" t-as="j">
+                            <t t-set="idx" t-value="i + j"/>
+                            <td t-if="idx &lt; len(group)" style="width: 33%;">
+                                <t t-set="product" t-value="group[idx]"/>
+                                <div class="o_cat_grid_img">
+                                    <img t-if="product.image_256"
+                                         t-att-src="image_data_uri(product.image_256)"
+                                         t-attf-style="max-height: {{img_h}}px; max-width: 100%;"/>
+                                </div>
+                                <div class="o_cat_grid_title" t-out="product.name"/>
+                                <div t-if="doc.show_reference and product.default_code" class="o_cat_grid_ref">
+                                    Ref: <t t-out="product.default_code"/>
+                                </div>
+
+                                <!-- Precio del padre (solo si no tiene variantes reales) -->
+                                <div t-if="doc.show_price and not doc._has_real_variants(product)" class="o_cat_grid_price">
+                                    <span t-out="doc.get_product_price(product)"
+                                          t-options="{'widget': 'monetary', 'display_currency': doc.currency_id}"/>
+                                    <span t-if="doc.show_uom" style="font-size: 9px; color: #888;">
+                                        / <t t-out="product.uom_id.name"/>
+                                    </span>
+                                </div>
+
+                                <div t-if="doc.show_description and (product.description_sale or product.description)" class="o_cat_grid_desc">
+                                    <t t-out="(product.description_sale or product.description or '')[:150]"/>
+                                </div>
+
+                                <!-- Listado de variantes dentro de la tarjeta -->
+                                <t t-if="doc._has_real_variants(product)">
+                                    <div class="o_cat_variants_mini mt-2">
+                                        <t t-foreach="doc._get_variants(product)" t-as="variant">
+                                            <div class="o_cat_variant_line">
+                                                <img t-if="variant.image_128"
+                                                     t-att-src="image_data_uri(variant.image_128)"
+                                                     style="max-height: 24px; max-width: 24px; vertical-align: middle;"/>
+                                                <span style="font-size: 10px;">
+                                                    <t t-out="doc._get_variant_attrs_text(variant)"/>
+                                                    <t t-if="doc.show_price">
+                                                        —
+                                                        <strong>
+                                                            <span t-out="doc.get_variant_price(variant)"
+                                                                  t-options="{'widget': 'monetary', 'display_currency': doc.currency_id}"/>
+                                                        </strong>
+                                                    </t>
+                                                </span>
+                                            </div>
+                                        </t>
+                                    </div>
+                                </t>
+                            </td>
+                            <td t-else="" style="width: 33%; border: none;"/>
+                        </t>
+                    </tr>
+                </t>
+            </table>
+        </t>
+    </template>
+</odoo>

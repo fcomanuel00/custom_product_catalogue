@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!--
+        Menú raíz (sin parent) - aparece como app independiente en la
+        barra principal junto a Ventas, Inventario, etc.
+
+        IMPORTANTE: le asignamos `action="action_product_catalogue"`
+        (la lista de catálogos generados). De este modo, al pulsar
+        "Catálogos" en la barra superior, entramos a la página de la
+        lista a pantalla completa, con su breadcrumb propio
+        ("Catálogos / ..."). Si dejásemos el raíz sin acción, Odoo
+        entraría al primer submenú, y si ese submenú fuera un wizard
+        (target=new), saldría como ventana flotante encima de donde
+        estuviéramos.
+    -->
+    <menuitem id="menu_product_catalogue_root"
+              name="Catálogos"
+              web_icon="custom_product_catalogue,static/description/icon.png"
+              action="action_product_catalogue"
+              sequence="90"
+              groups="group_catalogue_user"/>
+
+    <!-- Lista (primera, abre a pantalla completa) -->
+    <menuitem id="menu_product_catalogue_list"
+              name="Catálogos generados"
+              parent="menu_product_catalogue_root"
+              action="action_product_catalogue"
+              sequence="10"
+              groups="group_catalogue_user"/>
+
+    <!-- Wizard para crear un catálogo nuevo (flotante, se abre sobre la lista) -->
+    <menuitem id="menu_product_catalogue_new"
+              name="Nuevo Catálogo"
+              parent="menu_product_catalogue_root"
+              action="action_product_catalogue_wizard"
+              sequence="20"
+              groups="group_catalogue_manager"/>
+
+</odoo>

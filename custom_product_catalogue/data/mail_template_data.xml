@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+
+        <!--
+            Plantilla de email para enviar el catálogo al cliente.
+
+            NOTA IMPORTANTE (Odoo 19):
+            En Odoo 19 algunos campos de mail.template fueron renombrados o retirados
+            (report_template, report_template_ids, report_name...). Para evitar
+            depender de esos cambios, aquí solo definimos el contenido del email.
+            El PDF adjunto lo genera y añade dinámicamente el método Python
+            `action_send_email` del modelo product.catalogue (más robusto).
+        -->
+        <record id="mail_template_product_catalogue" model="mail.template">
+            <field name="name">Catálogo de Productos: Envío al cliente</field>
+            <field name="model_id" ref="model_product_catalogue"/>
+            <field name="subject">Catálogo de productos — {{ object.name }}</field>
+            <field name="email_from">{{ (object.user_id.email_formatted or user.email_formatted) }}</field>
+            <field name="body_html" type="html">
+<div style="margin:0px; padding:0px; font-size:14px;">
+    <p style="margin:0 0 12px 0; font-size:14px;">Buenos días,</p>
+    <p style="margin:0 0 12px 0;">
+        Le adjuntamos nuestro catálogo de productos
+        <strong t-out="object.name or ''">Catálogo</strong>
+        con los precios de la tarifa
+        <strong t-out="object.pricelist_id.name or ''">Tarifa</strong>.
+    </p>
+    <p style="margin:0 0 12px 0;">
+        Si necesita cualquier aclaración o desea realizar un pedido, responda directamente a este correo.
+    </p>
+    <p style="margin:0 0 12px 0;">Un saludo,<br/>
+        <strong t-out="object.user_id.name or user.name or ''">Atentamente</strong>
+    </p>
+</div>
+            </field>
+            <field name="auto_delete" eval="True"/>
+            <field name="lang">{{ object.user_id.lang }}</field>
+        </record>
+
+    </data>
+</odoo>

@@ -1,0 +1,175 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- ═══════════════════════════════════════════════════════════════════
+         Vista LISTA (antes "tree") del modelo product.catalogue
+         ═══════════════════════════════════════════════════════════════════ -->
+    <record id="view_product_catalogue_list" model="ir.ui.view">
+        <field name="name">product.catalogue.list</field>
+        <field name="model">product.catalogue</field>
+        <field name="arch" type="xml">
+            <list string="Catálogos generados" create="0">
+                <field name="name"/>
+                <field name="date_generated"/>
+                <field name="user_id"/>
+                <field name="pricelist_id"/>
+                <field name="style"/>
+                <field name="product_count"/>
+                <field name="state" widget="badge"
+                       decoration-info="state == 'draft'"
+                       decoration-success="state in ('done', 'sent')"/>
+            </list>
+        </field>
+    </record>
+
+    <!-- ═══════════════════════════════════════════════════════════════════
+         Vista FORMULARIO
+         ═══════════════════════════════════════════════════════════════════ -->
+    <record id="view_product_catalogue_form" model="ir.ui.view">
+        <field name="name">product.catalogue.form</field>
+        <field name="model">product.catalogue</field>
+        <field name="arch" type="xml">
+            <form string="Catálogo">
+                <header>
+                    <button name="action_print_pdf"
+                            type="object"
+                            string="Imprimir / Ver PDF"
+                            class="btn-primary"
+                            invisible="state == 'draft'"/>
+                    <button name="action_generate_pdf"
+                            type="object"
+                            string="Regenerar PDF"
+                            class="btn-secondary"
+                            groups="custom_product_catalogue.group_catalogue_manager"/>
+                    <button name="action_send_email"
+                            type="object"
+                            string="Enviar por email"
+                            invisible="state == 'draft'"
+                            groups="custom_product_catalogue.group_catalogue_manager"/>
+                    <button name="action_download_stored_pdf"
+                            type="object"
+                            string="Descargar PDF"
+                            invisible="not pdf_file"/>
+                    <field name="state" widget="statusbar" statusbar_visible="draft,done,sent"/>
+                </header>
+                <sheet>
+                    <div class="oe_title">
+                        <label for="name"/>
+                        <h1><field name="name"/></h1>
+                    </div>
+
+                    <group>
+                        <group>
+                            <field name="pricelist_id" readonly="state != 'draft'"/>
+                            <field name="currency_id" invisible="1"/>
+                            <field name="style" readonly="state != 'draft'"/>
+                            <field name="boxes_per_row" readonly="state != 'draft'"
+                                   invisible="style != '4'"/>
+                            <field name="image_size" readonly="state != 'draft'"/>
+                        </group>
+                        <group>
+                            <field name="user_id"/>
+                            <field name="date_generated"/>
+                            <field name="product_count"/>
+                        </group>
+                    </group>
+
+                    <notebook>
+                        <page string="Productos" name="products">
+                            <field name="product_ids" readonly="1">
+                                <list>
+                                    <field name="default_code"/>
+                                    <field name="name"/>
+                                    <field name="categ_id"/>
+                                    <field name="list_price"/>
+                                    <field name="uom_id"/>
+                                </list>
+                            </field>
+                        </page>
+                        <page string="Campos mostrados" name="fields_shown">
+                            <group>
+                                <group>
+                                    <field name="show_price"/>
+                                    <field name="show_description"/>
+                                    <field name="show_reference"/>
+                                </group>
+                                <group>
+                                    <field name="show_uom"/>
+                                    <field name="show_category"/>
+                                </group>
+                            </group>
+                        </page>
+                        <page string="Cabecera y pie" name="header_footer">
+                            <group>
+                                <field name="header_html" nolabel="1"
+                                       placeholder="Texto de cabecera (aparece al inicio)..."/>
+                            </group>
+                            <group>
+                                <field name="footer_html" nolabel="1"
+                                       placeholder="Texto de pie (aparece al final)..."/>
+                            </group>
+                            <group string="PDFs adjuntos (opcional)">
+                                <field name="header_pdf" filename="header_pdf_filename"/>
+                                <field name="header_pdf_filename" invisible="1"/>
+                                <field name="footer_pdf" filename="footer_pdf_filename"/>
+                                <field name="footer_pdf_filename" invisible="1"/>
+                            </group>
+                        </page>
+                        <page string="Archivo PDF" name="pdf">
+                            <group>
+                                <field name="pdf_file" filename="pdf_filename" readonly="1"/>
+                                <field name="pdf_filename" invisible="1"/>
+                            </group>
+                        </page>
+                    </notebook>
+                </sheet>
+                <chatter/>
+            </form>
+        </field>
+    </record>
+
+    <!-- ═══════════════════════════════════════════════════════════════════
+         Vista SEARCH
+         ═══════════════════════════════════════════════════════════════════ -->
+    <record id="view_product_catalogue_search" model="ir.ui.view">
+        <field name="name">product.catalogue.search</field>
+        <field name="model">product.catalogue</field>
+        <field name="arch" type="xml">
+            <search string="Catálogos">
+                <field name="name"/>
+                <field name="user_id"/>
+                <field name="pricelist_id"/>
+                <filter string="Borradores" name="draft" domain="[('state','=','draft')]"/>
+                <filter string="Generados" name="done" domain="[('state','=','done')]"/>
+                <filter string="Enviados" name="sent" domain="[('state','=','sent')]"/>
+                <separator/>
+                <filter string="Míos" name="mine" domain="[('user_id','=',uid)]"/>
+                <separator string="Agrupar por"/>
+                <group>
+                    <filter string="Creado por" name="group_user" context="{'group_by':'user_id'}"/>
+                    <filter string="Tarifa" name="group_pricelist" context="{'group_by':'pricelist_id'}"/>
+                    <filter string="Estado" name="group_state" context="{'group_by':'state'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <!-- ═══════════════════════════════════════════════════════════════════
+         Acción que abre la lista de catálogos
+         ═══════════════════════════════════════════════════════════════════ -->
+    <record id="action_product_catalogue" model="ir.actions.act_window">
+        <field name="name">Catálogos generados</field>
+        <field name="res_model">product.catalogue</field>
+        <field name="view_mode">list,form</field>
+        <field name="search_view_id" ref="view_product_catalogue_search"/>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Aún no has generado ningún catálogo
+            </p>
+            <p>
+                Usa el menú <b>"Nuevo Catálogo"</b> (arriba a la izquierda) para crear tu primer catálogo PDF.
+            </p>
+        </field>
+    </record>
+
+</odoo>

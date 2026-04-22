@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- ════════════════════════════════════════════════════════════════════
+         Acción del informe (ir.actions.report)
+         ════════════════════════════════════════════════════════════════════ -->
+    <record id="action_report_product_catalogue" model="ir.actions.report">
+        <field name="name">Catálogo de Productos</field>
+        <field name="model">product.catalogue</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">custom_product_catalogue.report_product_catalogue_main</field>
+        <field name="report_file">custom_product_catalogue.report_product_catalogue_main</field>
+        <field name="print_report_name">(object.name or 'Catalogo').replace('/', '_')</field>
+        <field name="binding_model_id" ref="model_product_catalogue"/>
+        <field name="binding_type">report</field>
+    </record>
+
+    <!-- ════════════════════════════════════════════════════════════════════
+         Plantilla principal — decide qué estilo renderizar
+         ════════════════════════════════════════════════════════════════════ -->
+    <template id="report_product_catalogue_main">
+        <t t-call="web.html_container">
+            <t t-foreach="docs" t-as="doc">
+                <t t-call="web.external_layout">
+
+                    <!-- Estilos CSS compartidos -->
+                    <t t-call="custom_product_catalogue.report_catalogue_styles"/>
+
+                    <div class="page o_product_catalogue">
+
+                        <!-- Cabecera HTML personalizada -->
+                        <div t-if="doc.header_html" class="o_catalogue_header mb-3">
+                            <t t-out="doc.header_html"/>
+                        </div>
+
+                        <!-- Título por defecto si no se ha puesto cabecera -->
+                        <div t-if="not doc.header_html" class="o_catalogue_header mb-3 text-center">
+                            <h2 t-out="doc.name"/>
+                            <p class="text-muted">
+                                Tarifa: <span t-out="doc.pricelist_id.name"/>
+                                — Fecha: <span t-out="doc.date_generated" t-options="{'widget': 'date'}"/>
+                            </p>
+                        </div>
+
+                        <!-- Cuerpo: switch por estilo -->
+                        <t t-if="doc.style == '1'">
+                            <t t-call="custom_product_catalogue.report_style_1"/>
+                        </t>
+                        <t t-elif="doc.style == '2'">
+                            <t t-call="custom_product_catalogue.report_style_2"/>
+                        </t>
+                        <t t-elif="doc.style == '3'">
+                            <t t-call="custom_product_catalogue.report_style_3"/>
+                        </t>
+                        <t t-elif="doc.style == '4'">
+                            <t t-call="custom_product_catalogue.report_style_4"/>
+                        </t>
+
+                        <!-- Pie HTML personalizado -->
+                        <div t-if="doc.footer_html" class="o_catalogue_footer mt-4">
+                            <t t-out="doc.footer_html"/>
+                        </div>
+
+                    </div>
+                </t>
+            </t>
+        </t>
+    </template>
+</odoo>

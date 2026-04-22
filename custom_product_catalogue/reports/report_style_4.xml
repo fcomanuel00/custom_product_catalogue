@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!--
+        ESTILO 4 — Cuadrícula configurable (2/3/4 columnas).
+        Usa t-attf-style con interpolación {{ }} para evitar el conflicto
+        del operador % con valores CSS que contienen porcentajes.
+    -->
+    <template id="report_style_4">
+        <t t-set="products_sorted" t-value="doc._get_sorted_products()"/>
+        <t t-set="cols" t-value="int(doc.boxes_per_row or '3')"/>
+        <t t-set="col_w" t-value="round(100.0 / cols, 2)"/>
+        <t t-set="img_h" t-value="int(doc._get_image_size_px() * 1.8)"/>
+
+        <table class="o_cat_grid">
+            <t t-foreach="range(0, len(products_sorted), cols)" t-as="i">
+                <tr>
+                    <t t-foreach="range(cols)" t-as="j">
+                        <t t-set="idx" t-value="i + j"/>
+                        <td t-if="idx &lt; len(products_sorted)" t-attf-style="width: {{col_w}}%;">
+                            <t t-set="product" t-value="products_sorted[idx]"/>
+                            <div class="o_cat_grid_img">
+                                <img t-if="product.image_256"
+                                     t-att-src="image_data_uri(product.image_256)"
+                                     t-attf-style="max-height: {{img_h}}px; max-width: 100%;"/>
+                            </div>
+                            <div class="o_cat_grid_title" t-out="product.name"/>
+                            <div t-if="doc.show_reference and product.default_code" class="o_cat_grid_ref">
+                                Ref: <t t-out="product.default_code"/>
+                            </div>
+                            <div t-if="doc.show_category" class="o_cat_grid_ref">
+                                <t t-out="product.categ_id.complete_name"/>
+                            </div>
+
+                            <!-- Precio del padre (solo si no tiene variantes reales) -->
+                            <div t-if="doc.show_price and not doc._has_real_variants(product)" class="o_cat_grid_price">
+                                <span t-out="doc.get_product_price(product)"
+                                      t-options="{'widget': 'monetary', 'display_currency': doc.currency_id}"/>
+                                <span t-if="doc.show_uom" style="font-size: 9px; color: #888;">
+                                    / <t t-out="product.uom_id.name"/>
+                                </span>
+                            </div>
+
+                            <div t-if="doc.show_description and (product.description_sale or product.description)" class="o_cat_grid_desc">
+                                <t t-out="(product.description_sale or product.description or '')[:200]"/>
+                            </div>
+
+                            <!-- Listado de variantes dentro de la tarjeta -->
+                            <t t-if="doc._has_real_variants(product)">
+                                <div class="o_cat_variants_mini mt-2">
+                                    <t t-foreach="doc._get_variants(product)" t-as="variant">
+                                        <div class="o_cat_variant_line">
+                                            <img t-if="variant.image_128"
+                                                 t-att-src="image_data_uri(variant.image_128)"
+                                                 style="max-height: 28px; max-width: 28px; vertical-align: middle;"/>
+                                            <span style="font-size: 10px;">
+                                                <t t-out="doc._get_variant_attrs_text(variant)"/>
+                                                <t t-if="doc.show_price">
+                                                    —
+                                                    <strong>
+                                                        <span t-out="doc.get_variant_price(variant)"
+                                                              t-options="{'widget': 'monetary', 'display_currency': doc.currency_id}"/>
+                                                    </strong>
+                                                </t>
+                                            </span>
+                                        </div>
+                                    </t>
+                                </div>
+                            </t>
+                        </td>
+                        <td t-else="" t-attf-style="width: {{col_w}}%; border: none;"/>
+                    </t>
+                </tr>
+            </t>
+        </table>
+    </template>
+</odoo>
